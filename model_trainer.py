@@ -5,9 +5,36 @@ from torch.utils.data import Dataset
 import torch
 import pandas as pd
 
-# 1. Load and prepare dataset
-true = pd.read_csv('true.csv')
-fake = pd.read_csv('fake.csv')
+import gdown
+import pandas as pd
+
+# Google Drive File IDs
+true_file_id = '1rS4EqcUuL8n7CZWziDE-n9p0qZyEOdjI'
+fake_file_id = '1cM2km-IpOtOXdv5prP_t0whtf7674ocJ'
+
+# Convert File IDs to direct download URLs
+true_url = f'https://drive.google.com/uc?id={true_file_id}'
+fake_url = f'https://drive.google.com/uc?id={fake_file_id}'
+
+# Download the files
+print("Downloading true.csv...")
+gdown.download(true_url, 'true.csv', quiet=False)
+
+print("Downloading fake.csv...")
+gdown.download(fake_url, 'fake.csv', quiet=False)
+
+# Load into DataFrames
+print("Reading datasets...")
+true_df = pd.read_csv('true.csv')
+fake_df = pd.read_csv('fake.csv')
+
+# Preview the data
+print("\nTRUE News Sample:")
+print(true_df.head())
+
+print("\nFAKE News Sample:")
+print(fake_df.head())
+
 
 true['label'] = 1  # REAL news
 fake['label'] = 0  # FAKE news
