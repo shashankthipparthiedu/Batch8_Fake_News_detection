@@ -7,7 +7,7 @@ import os
 app = Flask(__name__)
 
 # Claude API configuration (recommended to use environment variable)
-CLAUDE_API_KEY = "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"
+CLAUDE_API_KEY = "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"
 CLAUDE_API_URL = "https://api.anthropic.com/v1/messages"
 CLAUDE_MODEL = "claude-3-haiku-20240307"
 
