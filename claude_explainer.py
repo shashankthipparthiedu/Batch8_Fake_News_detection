@@ -6,7 +6,7 @@ import random
 app = Flask(__name__)
 
 # Claude API configuration
-CLAUDE_API_KEY = "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"
+CLAUDE_API_KEY = "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"
 CLAUDE_API_URL = "https://api.anthropic.com/v1/messages"
 CLAUDE_MODEL = "claude-3-haiku-20240307"  # Updated model
 
