@@ -2,22 +2,22 @@ from flask import Flask, request, render_template
 from deep_translator import GoogleTranslator
 import requests
 import random
-import os
 
 app = Flask(__name__)
 
-# Claude API configuration (recommended to use environment variable)
+# Claude API configuration
 CLAUDE_API_KEY = "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"
 CLAUDE_API_URL = "https://api.anthropic.com/v1/messages"
-CLAUDE_MODEL = "claude-3-haiku-20240307"
+CLAUDE_MODEL = "claude-3-haiku-20240307"  # Updated model
 
 # Prediction cache
 prediction_cache = {}
 
+# Label conversion
 def output_label(n):
     return "Fake News" if n == 0 else "Not A Fake News"
 
-# Call Claude API with user prompt
+# Call Claude API with prompt
 def generate_explanation(news_text, prediction):
     headers = {
         "x-api-key": CLAUDE_API_KEY,
@@ -35,23 +35,24 @@ def generate_explanation(news_text, prediction):
         ]
     }
 
-    try:
-        response = requests.post(CLAUDE_API_URL, headers=headers, json=data)
-        if response.status_code == 200:
-            claude_data = response.json()
-            return claude_data["content"][0].get("text", "⚠️ Claude returned no explanation.")
-        else:
-            return f"⚠️ Claude API error: {response.status_code} - {response.text}"
-    except Exception as e:
-        return f"⚠️ Claude request failed: {e}"
+    response = requests.post(CLAUDE_API_URL, headers=headers, json=data)
+    if response.status_code == 200:
+        try:
+            return response.json()['content'][0]['text']
+        except Exception:
+            return "⚠️ Claude response format changed."
+    else:
+        return "⚠️ Claude API error: " + str(response.text)
 
-# Simulated logic to mock fake news detection
+# Simulate fake/real prediction
 def check_fact(news_statement):
-    verdict = 1 if "modi" in news_statement.lower() else 0  # Replace with actual ML logic if needed
+    # Very simple mock classifier: You can connect real ML model here.
+    # For now, random result for demo
+    verdict = 1 if "modi" in news_statement.lower() else 0
     explanation = generate_explanation(news_statement, output_label(verdict))
     return verdict, explanation
 
-# Simulate ML models’ output
+# Create simulated model predictions
 def get_simulated_predictions(ai_result, input_text):
     if input_text in prediction_cache:
         return prediction_cache[input_text]
@@ -81,13 +82,10 @@ def index():
         statement = request.form['news']
         selected_lang = request.form['language']
 
-        # Translate input to English
         translated_input = GoogleTranslator(source=selected_lang, target="en").translate(statement) if selected_lang != "en" else statement
 
-        # Get result and explanation from Claude
         result, explanation = check_fact(translated_input)
 
-        # Simulated predictions for ML models
         simulated = get_simulated_predictions(result, translated_input)
 
         prediction = {}
@@ -96,7 +94,6 @@ def index():
             translated_output = GoogleTranslator(source="en", target=selected_lang).translate(label_en) if selected_lang != "en" else label_en
             prediction[model] = translated_output
 
-        # Translate explanation if needed
         if selected_lang != "en":
             explanation = GoogleTranslator(source="en", target=selected_lang).translate(explanation)
 
