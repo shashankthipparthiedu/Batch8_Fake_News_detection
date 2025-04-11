@@ -65,16 +65,28 @@ if st.button("🎤 Speak Your News"):
 else:
     news_input = st.text_area("🗞 Paste your news article here")
 
-# Prediction logic
-def verify_with_newsapi(query):
-    api_key = "bcee99d546804281bb20c4eb998af302"
-    url = f"https://newsapi.org/v2/everything?q={query}&sortBy=publishedAt&apiKey={api_key}"
-    response = requests.get(url).json()
-    articles = response.get("articles", [])
-    if len(articles) >= 3:
-        return "REAL", articles[:3]
+def verify_with_newsapi(news_input):
+    url = f"https://newsapi.org/v2/everything?q={news_input}&apiKey=YOUR_API_KEY"
+    
+    response = requests.get(url)
+
+    # ✅ Check for success before parsing JSON
+    if response.status_code == 200:
+        try:
+            data = response.json()
+            # ✔️ Continue your logic here, like:
+            articles = data.get("articles", [])
+            label = "Real News" if articles else "Fake News"
+            return label, articles
+        except Exception as e:
+            print("❌ JSON decoding error:", e)
+            return "Error: Invalid response format", []
     else:
-        return "UNKNOWN", []
+        print("❌ Failed to fetch data from NewsAPI")
+        print("Status Code:", response.status_code)
+        print("Response:", response.text)
+        return "Error: News API failed", []
+
 
 show_ml_only = st.checkbox("Use only ML model (skip NewsAPI verification)")
 
